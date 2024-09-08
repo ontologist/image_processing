@@ -1,10 +1,10 @@
 import cv2
 import numpy as np
+import io
 
 def apply_otsu_threshold(image):
     """
-    Applies Otsu's thresholding to the input grayscale image to segment
-    the foreground (black) and background (white) automatically based on pixel intensity distribution.
+    Applies Otsu's thresholding to the input grayscale image.
     """
     _, binary_otsu = cv2.threshold(image, 0, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)
     return binary_otsu
@@ -20,11 +20,12 @@ def fill_closed_areas(binary_mask):
     filled_image = cv2.bitwise_not(filled_image)
     return filled_image
 
-def process_image_file(image_path):
+def process_image_file(image_file):
     """
     Processes the input image by performing Otsu's thresholding and filling closed areas.
     """
-    image = cv2.imread(image_path)
+    image = np.frombuffer(image_file.read(), np.uint8)
+    image = cv2.imdecode(image, cv2.IMREAD_COLOR)
     gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
     otsu_result = apply_otsu_threshold(gray)
     filled_otsu = fill_closed_areas(otsu_result)
